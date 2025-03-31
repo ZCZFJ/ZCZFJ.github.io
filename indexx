@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ZCZFJ - 动态导航中心</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <!-- tsParticles -->
+    <script src="https://cdn.jsdelivr.net/npm/tsparticles@2.12.0/tsparticles.bundle.min.js"></script>
+
+    <style>
+        :root {
+            --primary-color: #2563eb; /* Tailwind blue-600 */
+            --primary-color-light: #60a5fa; /* blue-400 */
+            --primary-color-dark: #1e3a8a; /* blue-800 */
+            --glow-color: rgba(59, 130, 246, 0.6); /* Brighter blue glow */
+            --glow-color-alt: rgba(139, 92, 246, 0.5); /* Hint of purple for variety */
+            --text-glow-color: rgba(96, 165, 250, 0.8); /* Blue-300 glow for text */
+
+            --card-bg: rgba(255, 255, 255, 0.05); /* Semi-transparent white for glassmorphism */
+            --card-border: rgba(255, 255, 255, 0.1);
+            --card-hover-bg: rgba(255, 255, 255, 0.1);
+        }
+
+        /* Smooth Scroll & Font */
+        html {
+            scroll-behavior: smooth;
+        }
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+            background-color: #0f172a; /* Dark slate background */
+            color: #e2e8f0; /* Light text color */
+            overflow-x: hidden; /* Prevent horizontal scroll */
+            opacity: 0;
+            animation: pageFadeIn 1s ease-out forwards;
+        }
+
+        @keyframes pageFadeIn {
+            to { opacity: 1; }
+        }
+
+        /* --- Particle Background Container --- */
+        #particles-js {
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            z-index: -1; /* Behind everything */
+        }
+
+        /* --- Main Container & Layout --- */
+        .main-container {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 4rem 1rem; /* More padding */
+            position: relative; /* Needed for absolute positioning inside */
+            z-index: 1;
+        }
+
+        /* --- Title Styling & Animation --- */
+        .main-title {
+            font-size: clamp(3rem, 10vw, 6rem); /* Responsive font size */
+            font-weight: 800; /* Extra bold */
+            margin-bottom: 4rem;
+            background: linear-gradient(90deg, var(--primary-color-light), var(--primary-color), #a855f7); /* Gradient text */
+            -webkit-background-clip: text;
+            color: transparent;
+            text-shadow: 0 0 15px rgba(59, 130, 246, 0.3), 0 0 30px rgba(168, 85, 247, 0.2);
+            opacity: 0;
+            transform: translateY(-30px);
+            animation: titleFadeInDown 1s 0.5s ease-out forwards;
+        }
+
+        @keyframes titleFadeInDown {
+            from { opacity: 0; transform: translateY(-30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* --- Card Grid --- */
+        .card-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); /* Responsive grid */
+            gap: 2rem; /* More gap */
+            width: 100%;
+            max-width: 1000px; /* Max width for the grid */
+            perspective: 1500px; /* Enable 3D transforms for children */
+            margin-bottom: 4rem;
+        }
+
+        /* --- Interactive Card Styling --- */
+        .interactive-card {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            backdrop-filter: blur(10px) saturate(150%); /* Glassmorphism */
+            -webkit-backdrop-filter: blur(10px) saturate(150%);
+            border-radius: 1rem; /* Larger radius */
+            padding: 1.75rem; /* More padding */
+            text-align: center;
+            color: #cbd5e1; /* slate-300 */
+            position: relative; /* For pseudo-elements and positioning */
+            overflow: hidden; /* Clip glow/spotlight */
+            transition:
+                transform 0.4s cubic-bezier(0.25, 0.8, 0.25, 1),
+                box-shadow 0.4s cubic-bezier(0.25, 0.8, 0.25, 1),
+                background 0.4s ease;
+            opacity: 0;
+            transform: translateY(30px) scale(0.95);
+            animation: cardFadeInUp 0.6s ease-out forwards;
+            /* Base shadow */
+             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+             will-change: transform, box-shadow; /* Performance hint */
+        }
+
+        /* Card entry animation (staggered via JS later or inline style) */
+        @keyframes cardFadeInUp {
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+
+        /* Card Hover State */
+        .interactive-card:hover {
+            transform: translateY(-10px) scale(1.03) rotateX(5deg) rotateY(var(--rotate-y, 0deg)); /* 3D tilt + lift */
+            background: var(--card-hover-bg);
+            border-color: rgba(255, 255, 255, 0.2);
+            /* Enhanced glow effect */
+            box-shadow:
+                0 0 20px 5px var(--glow-color), /* Main blue glow */
+                0 0 35px 10px var(--glow-color-alt), /* Alt purple glow */
+                0 15px 30px rgba(0, 0, 0, 0.3); /* Deeper shadow */
+        }
+
+        /* Card Icon */
+        .interactive-card i {
+            font-size: 2.5rem; /* Larger icon */
+            margin-bottom: 1rem;
+            color: var(--primary-color-light);
+            transition: color 0.3s ease, transform 0.3s ease;
+        }
+        .interactive-card:hover i {
+            color: white;
+            transform: scale(1.1);
+        }
+
+        /* Card Title */
+        .interactive-card h2 {
+            font-size: 1.3rem; /* Slightly larger title */
+            font-weight: 600;
+            color: #f1f5f9; /* slate-100 */
+            margin-bottom: 0.5rem;
+            transition: color 0.3s ease;
+        }
+        .interactive-card:hover h2 {
+            color: white;
+        }
+
+        /* Card Description (Target for proximity effect) */
+        .interactive-card p {
+            font-size: 0.9rem;
+            line-height: 1.6;
+            opacity: 0.8;
+            transition: opacity 0.3s ease;
+        }
+        .interactive-card:hover p {
+            opacity: 1;
+        }
+        /* Class added by JS for proximity effect */
+        .text-proximity-effect {
+            transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275), /* Bounce effect */
+                        text-shadow 0.5s ease-out,
+                        -webkit-text-stroke 0.5s ease-out;
+            display: inline-block; /* Needed for individual transform */
+            will-change: transform, text-shadow; /* Performance hint */
+            -webkit-text-stroke: 0px transparent; /* Initial no stroke */
+            text-shadow: none; /* Initial no glow */
+        }
+
+
+        /* Mouse Position Spotlight Effect (using CSS variables updated by JS) */
+        .interactive-card::before {
+            content: "";
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            border-radius: inherit;
+            background: radial-gradient(
+                circle at var(--mouse-x, 50%) var(--mouse-y, 50%),
+                rgba(255, 255, 255, 0.15), /* Subtle white light */
+                transparent 200px /* Adjust radius */
+            );
+            opacity: 0;
+            transition: opacity 0.4s ease;
+            pointer-events: none; /* Allow clicks through */
+            z-index: 0; /* Below content */
+        }
+
+        .interactive-card:hover::before {
+            opacity: 1;
+        }
+
+        /* --- Social Links --- */
+        .social-links {
+            display: flex;
+            justify-content: center;
+            gap: 2rem; /* More spacing */
+            opacity: 0;
+            transform: translateY(20px);
+            animation: socialFadeInUp 1s 1.2s ease-out forwards; /* Delayed entry */
+        }
+
+        @keyframes socialFadeInUp {
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .social-link {
+            color: var(--primary-color-light);
+            font-size: 1.8rem; /* Larger icons */
+            transition: transform 0.3s ease, color 0.3s ease, text-shadow 0.3s ease;
+        }
+
+        .social-link:hover {
+            color: white;
+            transform: scale(1.2) translateY(-3px);
+            text-shadow: 0 0 10px var(--glow-color);
+        }
+
+    </style>
+</head>
+<body>
+
+    <!-- Particle Background Container -->
+    <div id="particles-js"></div>
+
+    <!-- Main Content -->
+    <div class="main-container">
+
+        <!-- Title -->
+        <h1 class="main-title">你的下一步</h1>
+
+        <!-- Navigation Card Grid -->
+        <div class="card-grid">
+            <!-- Card 1: Smart Chat -->
+            <a href="/chat" class="interactive-card" style="animation-delay: 0.6s;">
+                <i class="fas fa-comment-dots"></i>
+                <h2>智能聊天</h2>
+                <p class="interactive-text-target">集成DeepSeek-V3的AI平台，流畅对话，无广告烦恼。</p>
+            </a>
+
+            <!-- Card 2: Game Servers -->
+            <a href="/server" class="interactive-card" style="animation-delay: 0.7s;">
+                <i class="fas fa-server"></i>
+                <h2>联机服务器</h2>
+                <p class="interactive-text-target">公益性质自费服务器，畅享Minecraft、Terraria等联机乐趣。</p>
+            </a>
+
+            <!-- Card 3: Magic Shop -->
+            <a href="/shop" class="interactive-card" style="animation-delay: 0.8s;">
+                <i class="fas fa-cart-plus"></i>
+                <h2>神奇商店</h2>
+                <p class="interactive-text-target">探索、发现并获取各种奇妙独特的虚拟物品与道具。</p>
+            </a>
+
+            <!-- Card 4: Qoysad -->
+            <a href="/Qoysad" class="interactive-card" style="animation-delay: 0.9s;">
+                <i class="fas fa-grin-tongue-wink"></i>
+                <h2>Qoysad</h2>
+                <p class="interactive-text-target">一个充满乐趣和惊喜的专属秘密基地，只为你开放。</p>
+            </a>
+
+            <!-- Card 5: QQ Bot -->
+            <a href="/qqbot" class="interactive-card" style="animation-delay: 1.0s;">
+                <i class="fas fa-robot"></i>
+                <h2>QQ机器人</h2>
+                <p class="interactive-text-target">群聊中的智能伙伴，提供娱乐互动与实用查询功能。</p>
+            </a>
+
+            <!-- Card 6: Music Space -->
+            <a href="/music" class="interactive-card" style="animation-delay: 1.1s;">
+                <i class="fas fa-music"></i>
+                <h2>音乐空间</h2>
+                <p class="interactive-text-target">一个简洁纯粹的在线音乐站，沉浸在旋律的世界。</p>
+            </a>
+        </div>
+
+        <!-- Social Media Links -->
+        <div class="social-links">
+            <a href="https://space.bilibili.com/519241208" target="_blank" rel="noopener noreferrer" class="social-link" aria-label="Bilibili">
+                <i class="fab fa-bilibili"></i>
+            </a>
+            <a href="https://x.com/zczfj10714" target="_blank" rel="noopener noreferrer" class="social-link" aria-label="Twitter / X">
+                <i class="fab fa-twitter"></i>
+            </a>
+            <a href="mailto:2986819178mc@gmail.com" class="social-link" aria-label="Email">
+                <i class="fas fa-envelope"></i>
+            </a>
+        </div>
+
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+
+            // --- Initialize tsParticles ---
+            tsParticles.load("particles-js", {
+                fpsLimit: 60, // Adjust for performance if needed
+                particles: {
+                    number: { value: 80, density: { enable: true, value_area: 800 } }, // Density based particle count
+                    color: { value: ["#2563eb", "#60a5fa", "#a855f7"] }, // Array of colors
+                    shape: { type: "circle" },
+                    opacity: { value: 0.5, random: true, anim: { enable: true, speed: 1, opacity_min: 0.1, sync: false } },
+                    size: { value: 3, random: true, anim: { enable: false } }, // Smaller size
+                    line_linked: { enable: true, distance: 150, color: "#ffffff", opacity: 0.15, width: 1 }, // Subtle lines
+                    move: {
+                        enable: true,
+                        speed: 1.5, // Slower speed
+                        direction: "none",
+                        random: true,
+                        straight: false,
+                        out_mode: "out",
+                        bounce: false,
+                        attract: { enable: false }
+                    }
+                },
+                interactivity: {
+                    detect_on: "canvas",
+                    events: {
+                        onhover: { enable: true, mode: "grab" }, // Grab effect on hover
+                        onclick: { enable: true, mode: "push" }, // Push particles on click
+                        resize: true
+                    },
+                    modes: {
+                        grab: { distance: 140, line_opacity: 0.3 },
+                        push: { particles_nb: 4 } // Push 4 particles on click
+                    }
+                },
+                detectRetina: true,
+                background: {
+                    color: "#0f172a", // Match body background
+                }
+            }).then(container => {
+                console.log("tsParticles loaded successfully");
+            }).catch(error => {
+                console.error("Error loading tsParticles:", error);
+            });
+
+
+            // --- Interactive Card Effects ---
+            const cards = document.querySelectorAll('.interactive-card');
+            cards.forEach(card => {
+                card.addEventListener('mousemove', (e) => {
+                    const rect = card.getBoundingClientRect();
+                    const x = e.clientX - rect.left; // x position within the element.
+                    const y = e.clientY - rect.top;  // y position within the element.
+                    const centerX = rect.width / 2;
+                    const centerY = rect.height / 2;
+                    const rotateY = (x - centerX) / centerX * 5; // Max rotation 5deg
+
+                    // Update CSS variables for spotlight and rotation
+                    card.style.setProperty('--mouse-x', `${x}px`);
+                    card.style.setProperty('--mouse-y', `${y}px`);
+                    card.style.setProperty('--rotate-y', `${rotateY}deg`); // Used in hover transform
+                });
+
+                card.addEventListener('mouseleave', () => {
+                    // Reset rotation smoothly via CSS transition
+                    card.style.setProperty('--rotate-y', '0deg');
+                    // Optionally reset spotlight center, or let it fade out from last position
+                    // card.style.setProperty('--mouse-x', `50%`);
+                    // card.style.setProperty('--mouse-y', `50%`);
+                });
+            });
+
+
+            // --- Text Proximity Effect ---
+            const textTargets = document.querySelectorAll('.interactive-text-target');
+            let mouseX = window.innerWidth / 2;
+            let mouseY = window.innerHeight / 2;
+            const effectRadius = 150; // Pixels within which the effect is strongest
+            const maxOffset = 5; // Max pixels text will lift
+            const maxStroke = 1; // Max stroke width
+
+            // Wrap each word in a span for individual animation
+            textTargets.forEach(p => {
+                p.innerHTML = p.textContent.split(' ').map(word => `<span class="proximity-word">${word}</span>`).join(' ');
+            });
+            const words = document.querySelectorAll('.proximity-word');
+
+            function updateTextProximity() {
+                words.forEach(word => {
+                    const rect = word.getBoundingClientRect();
+                    const wordCenterX = rect.left + rect.width / 2;
+                    const wordCenterY = rect.top + rect.height / 2;
+
+                    const dx = mouseX - wordCenterX;
+                    const dy = mouseY - wordCenterY;
+                    const distance = Math.sqrt(dx * dx + dy * dy);
+
+                    // Calculate effect intensity (0 to 1) based on distance
+                    const intensity = Math.max(0, 1 - distance / effectRadius);
+
+                    if (intensity > 0.01) { // Apply effect if close enough
+                         if (!word.classList.contains('text-proximity-effect')) {
+                            word.classList.add('text-proximity-effect');
+                         }
+                        const offsetY = -intensity * maxOffset;
+                        const strokeWidth = intensity * maxStroke;
+                        const glowBlur = intensity * 5; // Glow blur radius
+
+                        word.style.transform = `translateY(${offsetY}px)`;
+                        word.style.webkitTextStroke = `${strokeWidth}px var(--primary-color-light)`;
+                        word.style.textShadow = `0 0 ${glowBlur}px var(--text-glow-color)`;
+                    } else {
+                        // Reset smoothly via CSS transition if class exists
+                        if (word.classList.contains('text-proximity-effect')) {
+                            word.style.transform = 'translateY(0px)';
+                            word.style.webkitTextStroke = '0px transparent';
+                            word.style.textShadow = 'none';
+                             // Remove class after transition (optional, depends on CSS)
+                             // setTimeout(() => word.classList.remove('text-proximity-effect'), 500);
+                        }
+                    }
+                });
+
+                requestAnimationFrame(updateTextProximity); // Loop for continuous update
+            }
+
+            window.addEventListener('mousemove', (e) => {
+                mouseX = e.clientX;
+                mouseY = e.clientY;
+            }, { passive: true }); // Improve scroll performance
+
+            requestAnimationFrame(updateTextProximity); // Start the animation loop
+
+        });
+    </script>
+
+</body>
+</html>
