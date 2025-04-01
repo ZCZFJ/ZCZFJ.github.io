@@ -17,12 +17,13 @@
             --primary-color-light: #60a5fa; /* blue-400 */
             --primary-color-dark: #1e3a8a; /* blue-800 */
             --glow-color: rgba(59, 130, 246, 0.6); /* Brighter blue glow */
-            --glow-color-alt: rgba(139, 92, 246, 0.5); /* Hint of purple for variety */
+            --glow-color-alt: rgba(40, 205, 255, 0.5); /* Hint of purple for variety */
             --text-glow-color: rgba(96, 165, 250, 0.8); /* Blue-300 glow for text */
 
-            --card-bg: rgba(255, 255, 255, 0.05); /* Semi-transparent white for glassmorphism */
+            /* --- MODIFIED: Increased opacity for more visible white background --- */
+            --card-bg: rgba(255, 255, 255, 0.15); /* Semi-transparent white for glassmorphism */
             --card-border: rgba(255, 255, 255, 0.1);
-            --card-hover-bg: rgba(255, 255, 255, 0.1);
+            --card-hover-bg: rgba(255, 255, 255, 0.2); /* Hover background slightly more opaque */
         }
 
         /* Smooth Scroll & Font */
@@ -31,7 +32,7 @@
         }
         body {
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
-            background-color: #0f172a; /* Dark slate background */
+            /* background-color: #0f172a; Removed: Now handled by particles background image */
             color: #e2e8f0; /* Light text color */
             overflow-x: hidden; /* Prevent horizontal scroll */
             opacity: 0;
@@ -69,7 +70,7 @@
             font-size: clamp(3rem, 10vw, 6rem); /* Responsive font size */
             font-weight: 800; /* Extra bold */
             margin-bottom: 4rem;
-            background: linear-gradient(90deg, var(--primary-color-light), var(--primary-color), #a855f7); /* Gradient text */
+            background: linear-gradient(90deg, var(--primary-color-light), var(--primary-color), #85c8f5); /* Gradient text */
             -webkit-background-clip: text;
             color: transparent;
             text-shadow: 0 0 15px rgba(59, 130, 246, 0.3), 0 0 30px rgba(168, 85, 247, 0.2);
@@ -96,9 +97,9 @@
 
         /* --- Interactive Card Styling --- */
         .interactive-card {
-            background: var(--card-bg);
+            background: var(--card-bg); /* Using the updated variable */
             border: 1px solid var(--card-border);
-            backdrop-filter: blur(10px) saturate(150%); /* Glassmorphism */
+            backdrop-filter: blur(10px) saturate(150%); /* Gaussian blur remains */
             -webkit-backdrop-filter: blur(10px) saturate(150%);
             border-radius: 1rem; /* Larger radius */
             padding: 1.75rem; /* More padding */
@@ -125,14 +126,15 @@
 
         /* Card Hover State */
         .interactive-card:hover {
-            transform: translateY(-10px) scale(1.03) rotateX(5deg) rotateY(var(--rotate-y, 0deg)); /* 3D tilt + lift */
-            background: var(--card-hover-bg);
+             /* --- MODIFIED: Increased translateY for more lift, adjusted shadow --- */
+            transform: translateY(-12px) scale(1.03) rotateX(5deg) rotateY(var(--rotate-y, 0deg)); /* Enhanced 3D tilt + lift */
+            background: var(--card-hover-bg); /* Using the updated variable */
             border-color: rgba(255, 255, 255, 0.2);
-            /* Enhanced glow effect */
+            /* Enhanced glow effect + deeper shadow */
             box-shadow:
                 0 0 20px 5px var(--glow-color), /* Main blue glow */
                 0 0 35px 10px var(--glow-color-alt), /* Alt purple glow */
-                0 15px 30px rgba(0, 0, 0, 0.3); /* Deeper shadow */
+                0 18px 35px rgba(0, 0, 0, 0.35); /* Deeper shadow for floating effect */
         }
 
         /* Card Icon */
@@ -165,16 +167,18 @@
             line-height: 1.6;
             opacity: 0.8;
             transition: opacity 0.3s ease;
+            /* Ensure spans inside can be positioned correctly if needed */
+            position: relative;
         }
         .interactive-card:hover p {
             opacity: 1;
         }
-        /* Class added by JS for proximity effect */
-        .text-proximity-effect {
-            transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275), /* Bounce effect */
-                        text-shadow 0.5s ease-out,
-                        -webkit-text-stroke 0.5s ease-out;
-            display: inline-block; /* Needed for individual transform */
+        /* Style for individual characters (added by JS) */
+        .proximity-char {
+             display: inline-block; /* Crucial for transform */
+             transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), /* Bounce effect */
+                        text-shadow 0.3s ease-out,
+                        -webkit-text-stroke 0.3s ease-out;
             will-change: transform, text-shadow; /* Performance hint */
             -webkit-text-stroke: 0px transparent; /* Initial no stroke */
             text-shadow: none; /* Initial no glow */
@@ -306,17 +310,17 @@
 
             // --- Initialize tsParticles ---
             tsParticles.load("particles-js", {
-                fpsLimit: 60, // Adjust for performance if needed
+                fpsLimit: 60,
                 particles: {
-                    number: { value: 80, density: { enable: true, value_area: 800 } }, // Density based particle count
-                    color: { value: ["#2563eb", "#60a5fa", "#a855f7"] }, // Array of colors
+                    number: { value: 80, density: { enable: true, value_area: 800 } },
+                    color: { value: ["#2563eb", "#60a5fa", "#a855f7"] },
                     shape: { type: "circle" },
                     opacity: { value: 0.5, random: true, anim: { enable: true, speed: 1, opacity_min: 0.1, sync: false } },
-                    size: { value: 3, random: true, anim: { enable: false } }, // Smaller size
-                    line_linked: { enable: true, distance: 150, color: "#ffffff", opacity: 0.15, width: 1 }, // Subtle lines
+                    size: { value: 3, random: true, anim: { enable: false } },
+                    line_linked: { enable: true, distance: 150, color: "#ffffff", opacity: 0.15, width: 1 },
                     move: {
                         enable: true,
-                        speed: 1.5, // Slower speed
+                        speed: 1.5,
                         direction: "none",
                         random: true,
                         straight: false,
@@ -328,18 +332,21 @@
                 interactivity: {
                     detect_on: "canvas",
                     events: {
-                        onhover: { enable: true, mode: "grab" }, // Grab effect on hover
-                        onclick: { enable: true, mode: "push" }, // Push particles on click
+                        onhover: { enable: true, mode: "grab" },
+                        onclick: { enable: true, mode: "push" },
                         resize: true
                     },
                     modes: {
                         grab: { distance: 140, line_opacity: 0.3 },
-                        push: { particles_nb: 4 } // Push 4 particles on click
+                        push: { particles_nb: 4 }
                     }
                 },
                 detectRetina: true,
                 background: {
-                    color: "#0f172a", // Match body background
+                    image: "url('back.png')",
+                    position: "50% 50%",
+                    repeat: "no-repeat",
+                    size: "cover"
                 }
             }).then(container => {
                 console.log("tsParticles loaded successfully");
@@ -353,87 +360,75 @@
             cards.forEach(card => {
                 card.addEventListener('mousemove', (e) => {
                     const rect = card.getBoundingClientRect();
-                    const x = e.clientX - rect.left; // x position within the element.
-                    const y = e.clientY - rect.top;  // y position within the element.
+                    const x = e.clientX - rect.left;
+                    const y = e.clientY - rect.top;
                     const centerX = rect.width / 2;
                     const centerY = rect.height / 2;
-                    const rotateY = (x - centerX) / centerX * 5; // Max rotation 5deg
+                    const rotateY = (x - centerX) / centerX * 5;
 
-                    // Update CSS variables for spotlight and rotation
                     card.style.setProperty('--mouse-x', `${x}px`);
                     card.style.setProperty('--mouse-y', `${y}px`);
-                    card.style.setProperty('--rotate-y', `${rotateY}deg`); // Used in hover transform
+                    card.style.setProperty('--rotate-y', `${rotateY}deg`);
                 });
 
                 card.addEventListener('mouseleave', () => {
-                    // Reset rotation smoothly via CSS transition
                     card.style.setProperty('--rotate-y', '0deg');
-                    // Optionally reset spotlight center, or let it fade out from last position
-                    // card.style.setProperty('--mouse-x', `50%`);
-                    // card.style.setProperty('--mouse-y', `50%`);
                 });
             });
 
 
-            // --- Text Proximity Effect ---
+            // --- Text Proximity Effect (Character based) ---
             const textTargets = document.querySelectorAll('.interactive-text-target');
             let mouseX = window.innerWidth / 2;
             let mouseY = window.innerHeight / 2;
-            const effectRadius = 150; // Pixels within which the effect is strongest
-            const maxOffset = 5; // Max pixels text will lift
-            const maxStroke = 1; // Max stroke width
+            const effectRadius = 120; // Pixels within which the effect is strongest
+            const maxOffset = 6;     // Max pixels text will lift
+            const maxStroke = 0.8;   // Max stroke width for glow
+            const maxGlowBlur = 4; // Max glow blur radius
 
-            // Wrap each word in a span for individual animation
             textTargets.forEach(p => {
-                p.innerHTML = p.textContent.split(' ').map(word => `<span class="proximity-word">${word}</span>`).join(' ');
+                p.innerHTML = p.textContent.split('').map(char => {
+                    return char.trim() === '' ? ' ' : `<span class="proximity-char">${char}</span>`;
+                }).join('');
             });
-            const words = document.querySelectorAll('.proximity-word');
+            const chars = document.querySelectorAll('.proximity-char');
 
             function updateTextProximity() {
-                words.forEach(word => {
-                    const rect = word.getBoundingClientRect();
-                    const wordCenterX = rect.left + rect.width / 2;
-                    const wordCenterY = rect.top + rect.height / 2;
+                chars.forEach(char => {
+                    const rect = char.getBoundingClientRect();
+                    const charCenterX = rect.left + rect.width / 2;
+                    const charCenterY = rect.top + rect.height / 2;
 
-                    const dx = mouseX - wordCenterX;
-                    const dy = mouseY - wordCenterY;
+                    const dx = mouseX - charCenterX;
+                    const dy = mouseY - charCenterY;
                     const distance = Math.sqrt(dx * dx + dy * dy);
 
-                    // Calculate effect intensity (0 to 1) based on distance
                     const intensity = Math.max(0, 1 - distance / effectRadius);
 
-                    if (intensity > 0.01) { // Apply effect if close enough
-                         if (!word.classList.contains('text-proximity-effect')) {
-                            word.classList.add('text-proximity-effect');
-                         }
+                    if (intensity > 0.01) {
                         const offsetY = -intensity * maxOffset;
                         const strokeWidth = intensity * maxStroke;
-                        const glowBlur = intensity * 5; // Glow blur radius
+                        const glowBlur = intensity * maxGlowBlur;
 
-                        word.style.transform = `translateY(${offsetY}px)`;
-                        word.style.webkitTextStroke = `${strokeWidth}px var(--primary-color-light)`;
-                        word.style.textShadow = `0 0 ${glowBlur}px var(--text-glow-color)`;
+                        char.style.transform = `translateY(${offsetY}px)`;
+                        char.style.webkitTextStroke = `${strokeWidth}px var(--primary-color-light)`;
+                        char.style.textShadow = `0 0 ${glowBlur}px var(--text-glow-color)`;
                     } else {
-                        // Reset smoothly via CSS transition if class exists
-                        if (word.classList.contains('text-proximity-effect')) {
-                            word.style.transform = 'translateY(0px)';
-                            word.style.webkitTextStroke = '0px transparent';
-                            word.style.textShadow = 'none';
-                             // Remove class after transition (optional, depends on CSS)
-                             // setTimeout(() => word.classList.remove('text-proximity-effect'), 500);
-                        }
+                        char.style.transform = 'translateY(0px)';
+                        char.style.webkitTextStroke = '0px transparent';
+                        char.style.textShadow = 'none';
                     }
                 });
 
-                requestAnimationFrame(updateTextProximity); // Loop for continuous update
+                requestAnimationFrame(updateTextProximity);
             }
 
             window.addEventListener('mousemove', (e) => {
                 mouseX = e.clientX;
                 mouseY = e.clientY;
-            }, { passive: true }); // Improve scroll performance
+            }, { passive: true });
 
-            requestAnimationFrame(updateTextProximity); // Start the animation loop
+            requestAnimationFrame(updateTextProximity);
 
         });
     </script>
